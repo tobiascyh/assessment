@@ -3,6 +3,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -22,22 +23,37 @@ public class Assessment {
         URL url = null;
         Scanner scan = new Scanner(System.in);
         HashMap<String, Integer> storage = new HashMap<String, Integer>();
+        boolean visited = true;
+        ArrayList<String> history = new ArrayList<String>();
 
         // Program startup
         while (n != 0) {
-            try {
-                System.out.println("Enter a Wikipedia URL:");
-                input = scan.nextLine().trim();
-                // Validating user provided url
-                url = new URL(input);
-                if (!url.getHost().toLowerCase().contentEquals(wikiURL)) {
-                    System.out.println("This is not a Wikipedia URL");
+            while (visited) {
+                try {
+                    System.out.println("Enter a Wikipedia URL:");
+                    input = scan.nextLine().trim();
+                    // Validating user provided url
+                    url = new URL(input);
+                    if (!url.getHost().toLowerCase().contentEquals(wikiURL)) {
+                        System.out.println("This is not a Wikipedia URL");
+                        break;
+                    }
+                    // Check input history
+                    visited = false;
+                    for (int i = 0; i < history.size(); i++) {
+                        if (history.get(i).contentEquals(input)) {
+                            System.out.println("You have visited this Wikipedia URL");
+                            visited = true;
+                            break;
+                        }
+                    }
+                    history.add(input);
+                } catch (MalformedURLException e) {
+                    System.out.println("URL entered is not valid: " + e.getMessage());
                     break;
                 }
-            } catch (MalformedURLException e) {
-                System.out.println("URL entered is not valid: " + e.getMessage());
-                break;
             }
+            visited = true;
 
             // Prompt n for initial startup only
             if (n == -1) {
