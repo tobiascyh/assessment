@@ -1,3 +1,12 @@
+/*
+ * Created by: Yee Hong Chu
+ * Created date: September 17, 2022
+ * Last updated by: Yee Hong Chu
+ * Last updated date: September 18, 2022
+ *
+ * Note: Due to time limitation, feature modules were not separated into individual methods.
+ */
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,20 +34,18 @@ public class Assessment {
         HashMap<String, Integer> storage = new HashMap<String, Integer>();
         boolean visited = true;
         ArrayList<String> history = new ArrayList<String>();
-        boolean completed = true;
 
         // Program startup
         while (n != 0) {
             while (visited) {
                 try {
+                    // Validating user provided url
                     System.out.println("Enter a Wikipedia URL:");
                     input = scan.nextLine().trim();
-                    // Validating user provided url
                     url = new URL(input);
                     if (!url.getHost().toLowerCase().contentEquals(wikiURL)) {
                         System.out.println("This is not a Wikipedia URL");
-                        completed = false;
-                        break;
+                        System.exit(0);
                     }
                     // Check input history
                     visited = false;
@@ -52,8 +59,7 @@ public class Assessment {
                     history.add(input);
                 } catch (MalformedURLException e) {
                     System.out.println("URL entered is not valid: " + e.getMessage());
-                    completed = false;
-                    break;
+                    System.exit(0);
                 }
             }
             visited = true;
@@ -66,18 +72,16 @@ public class Assessment {
                     scan.nextLine();
                 } catch (InputMismatchException e) {
                     System.out.println("Invalid integer");
-                    completed = false;
-                    break;
+                    System.exit(0);
                 }
                 // Validating n range
                 if (n < 1 || n > 20) {
                     System.out.println("Out of range");
-                    completed = false;
-                    break;
+                    System.exit(0);
                 }
             }
 
-            // Scrape all links after "/wiki/" path
+            // Scrape all links after "/wiki/" path and store them
             try {
                 InputStream is = url.openStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -99,33 +103,34 @@ public class Assessment {
                 is.close();
             } catch (Exception e) {
                 System.out.println("Exception: " + e);
-                completed = false;
-                break;
+                System.exit(0);
             }
             n--;
         }
         scan.close();
-        if (completed) {
-            try {
-                FileWriter csvFile = new FileWriter("results.csv");
-                for (String s : storage.keySet()) {
-                    csvFile.append(s);
-                    csvFile.append("\n");
-                    total = total + storage.get(s);
-                    if (storage.get(s) == 1) {
-                        unique++;
-                    }
+
+        // Write results to file if the program completed successfully
+        try {
+            FileWriter csvFile = new FileWriter("results.csv");
+            for (String s : storage.keySet()) {
+                csvFile.append(s);
+                csvFile.append("\n");
+                total = total + storage.get(s);
+                if (storage.get(s) == 1) {
+                    unique++;
                 }
-                csvFile.append(String.valueOf(total));
-                csvFile.append("\n");
-                csvFile.append(String.valueOf(unique));
-                csvFile.append("\n");
-                csvFile.flush();
-                csvFile.close();
-            } catch (IOException e) {
-                System.out.println("Failed to create results file");
             }
+            csvFile.append(String.valueOf(total));
+            csvFile.append("\n");
+            csvFile.append(String.valueOf(unique));
+            csvFile.append("\n");
+            csvFile.flush();
+            csvFile.close();
+        } catch (IOException e) {
+            System.out.println("Failed to create results file");
+            System.exit(0);
         }
+
         // Uncomment to view stored values in HashMap
         //System.out.println("Total count:" + total + " Unique count:" + unique);
         //for (String s : storage.keySet()) {
